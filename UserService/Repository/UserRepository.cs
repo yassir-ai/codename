@@ -1,5 +1,4 @@
 using UserService.Data;
-using UserService.Dto;
 using UserService.Interfaces;
 using UserService.Model;
 
@@ -19,8 +18,23 @@ public class UserRepository : IUserRepository
         return Save();
     }
 
+    public IEnumerable<User> GetAllUsers()
+    {
+        return _dbContext.Users.AsEnumerable();
+    }
+
+    public User GetUser(string id)
+    {
+        return _dbContext.Users.Where(u => u.Id == id).FirstOrDefault();
+    }
+
     public bool Save()
     {
         return _dbContext.SaveChanges() > 0;
+    }
+
+    public bool UserExists(string id)
+    {
+        return _dbContext.Users.Any(u => u.Id == id);
     }
 }
