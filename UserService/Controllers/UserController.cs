@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Dtos;
+using UserService.Extensions;
 using UserService.Interfaces;
 using UserService.Model;
 
@@ -69,6 +70,29 @@ public class UserController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpPut("{id}")]
+    public IActionResult UpdateUser([FromRoute] string id, [FromBody]UserDtoUpdate userUpdateDto)
+    {
+        if(!ModelState.IsValid) return BadRequest();
+
+        try
+        {
+            var user = _userRepository.GetUser(id);
+
+            if(user == null) return NotFound();
+
+            userUpdateDto.ToUserModel(user);
+
+            _userRepository.UpdateUser(user);
+
+            return NoContent();
+        }
+        catch (System.Exception ex)
+        {
+            return StatusCode(500, $"An unexpected error occurred : {ex.Message}");
         }
     }
 }
