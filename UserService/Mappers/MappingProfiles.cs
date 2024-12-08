@@ -1,5 +1,5 @@
 using AutoMapper;
-using UserService.Dto;
+using UserService.Dtos;
 using UserService.Dtos;
 using UserService.Model;
 
@@ -12,5 +12,6 @@ public class MappingProfiles : Profile
         //source --> dest
         CreateMap<UserDtoCreate, User>();
         CreateMap<User, UserDtoRead>();
+        CreateMap<UserDtoUpdate, User>();
     }
 }

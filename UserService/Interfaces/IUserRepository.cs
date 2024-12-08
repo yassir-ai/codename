@@ -9,4 +9,5 @@ public interface IUserRepository
     bool UserExists(string id);
     bool CreateUser(User user);
     bool Save();
+    bool UpdateUser(User user);
 }
