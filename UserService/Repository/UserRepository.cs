@@ -37,4 +37,10 @@ public class UserRepository : IUserRepository
     {
         return _dbContext.Users.Any(u => u.Id == id);
     }
+
+    public bool UpdateUser(User user)
+    {
+        _dbContext.Update(user);
+        return Save();
+    }
 }
