@@ -10,4 +10,5 @@ public interface IUserRepository
     bool CreateUser(User user);
     bool Save();
     bool UpdateUser(User user);
+    bool DeleteUser(User user);
 }
