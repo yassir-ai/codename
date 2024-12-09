@@ -95,4 +95,26 @@ public class UserController : ControllerBase
             return StatusCode(500, $"An unexpected error occurred : {ex.Message}");
         }
     }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteUser([FromRoute]string id)
+    {
+        try
+        {
+            var user = _userRepository.GetUser(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (!_userRepository.DeleteUser(user)) return StatusCode(500, "An unexpected error occurred");
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+        }
+    }
 }
