@@ -43,4 +43,10 @@ public class UserRepository : IUserRepository
         _dbContext.Update(user);
         return Save();
     }
+
+    public bool DeleteUser(User user)
+    {
+        _dbContext.Remove(user);
+        return Save();
+    }
 }
