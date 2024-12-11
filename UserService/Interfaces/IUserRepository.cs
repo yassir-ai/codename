@@ -7,8 +7,8 @@ public interface IUserRepository
     IEnumerable<User> GetAllUsers();
     User GetUser(string id);
     bool UserExists(string id);
-    bool CreateUser(User user);
-    bool Save();
-    bool UpdateUser(User user);
-    bool DeleteUser(User user);
+    void CreateUser(User user);
+    void Save();
+    void UpdateUser(User user);
+    void DeleteUser(User user);
 }
