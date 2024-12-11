@@ -1,4 +1,5 @@
 using UserService.Data;
+using UserService.Exceptions;
 using UserService.Interfaces;
 using UserService.Model;
 
@@ -12,25 +13,41 @@ public class UserRepository : IUserRepository
     {
         _dbContext = dbContext;
     }
-    public bool CreateUser(User user)
+
+    public void CreateUser(User user)
     {
         _dbContext.Add(user);
-        return Save();
+        Save();
     }
 
     public IEnumerable<User> GetAllUsers()
     {
-        return _dbContext.Users.AsEnumerable();
+        var users = _dbContext.Users.AsEnumerable();
+        return users;
     }
 
     public User GetUser(string id)
     {
-        return _dbContext.Users.Where(u => u.Id == id).FirstOrDefault();
+        var user = _dbContext.Users.Where(u => u.Id == id).FirstOrDefault();
+
+        if (user == null)
+        {
+            throw new EntityNotFoundException($"User with ID {id} not found.");
+        }
+
+        return user;
     }
 
-    public bool Save()
+    public void Save()
     {
-        return _dbContext.SaveChanges() > 0;
+        try
+        {
+            _dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            throw new DatabaseSavingException("An error occurred while saving changes to the database.", ex);
+        }
     }
 
     public bool UserExists(string id)
@@ -38,15 +55,15 @@ public class UserRepository : IUserRepository
         return _dbContext.Users.Any(u => u.Id == id);
     }
 
-    public bool UpdateUser(User user)
+    public void UpdateUser(User user)
     {
         _dbContext.Update(user);
-        return Save();
+        Save();
     }
 
-    public bool DeleteUser(User user)
+    public void DeleteUser(User user)
     {
         _dbContext.Remove(user);
-        return Save();
+        Save();
     }
 }
