@@ -21,19 +21,19 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] UserDtoCreate userCreateDto)
+    public async Task<IActionResult> CreateUserAsync([FromBody] UserDtoCreate userCreateDto)
     {
         var user = _mapper.Map<User>(userCreateDto);
 
-        _userRepository.CreateUser(user);
+        await _userRepository.CreateUserAsync(user);
 
         return Created();
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetAllUsersAsync()
     {
-        var users = _userRepository.GetAllUsers();
+        var users = await _userRepository.GetAllUsersAsync();
 
         var usersDtos = _mapper.Map<IEnumerable<UserDtoRead>>(users);
 
@@ -41,22 +41,22 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser([FromRoute]string id)
+    public async Task<IActionResult> GetUserAsync([FromRoute]string id)
     {
-        var user = _userRepository.GetUser(id);
+        var user = await _userRepository.GetUserAsync(id);
 
         var userDto = _mapper.Map<UserDtoRead>(user);
         return Ok(userDto);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser([FromRoute] string id, [FromBody]UserDtoUpdate userUpdateDto)
+    public async Task<IActionResult> UpdateUserAsync([FromRoute] string id, [FromBody]UserDtoUpdate userUpdateDto)
     {
-        var user = _userRepository.GetUser(id);
+        var user = await _userRepository.GetUserAsync(id);
 
         userUpdateDto.ToUserModel(user);
 
-        _userRepository.UpdateUser(user);
+        await _userRepository.UpdateUserAsync(user);
 
         return NoContent();
     }
@@ -64,9 +64,9 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser([FromRoute]string id)
     {
-        var user = _userRepository.GetUser(id);
+        var user = await _userRepository.GetUserAsync(id);
 
-        _userRepository.DeleteUser(user);
+        await _userRepository.DeleteUserAsync(user);
 
         return NoContent();
     }
