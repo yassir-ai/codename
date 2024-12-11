@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 using UserService.Exceptions;
 using UserService.Interfaces;
@@ -14,21 +15,21 @@ public class UserRepository : IUserRepository
         _dbContext = dbContext;
     }
 
-    public void CreateUser(User user)
+    public async Task CreateUserAsync(User user)
     {
-        _dbContext.Add(user);
-        Save();
+        await _dbContext.AddAsync(user);
+        await SaveAsync();
     }
 
-    public IEnumerable<User> GetAllUsers()
+    public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
-        var users = _dbContext.Users.AsEnumerable();
+        var users = await _dbContext.Users.ToListAsync();
         return users;
     }
 
-    public User GetUser(string id)
+    public async Task<User> GetUserAsync(string id)
     {
-        var user = _dbContext.Users.Where(u => u.Id == id).FirstOrDefault();
+        var user = await _dbContext.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 
         if (user == null)
         {
@@ -38,11 +39,11 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
         try
         {
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
         catch (Exception ex)
         {
@@ -50,20 +51,20 @@ public class UserRepository : IUserRepository
         }
     }
 
-    public bool UserExists(string id)
+    public async Task<bool> UserExistsAsync(string id)
     {
-        return _dbContext.Users.Any(u => u.Id == id);
+        return await _dbContext.Users.AnyAsync(u => u.Id == id);
     }
 
-    public void UpdateUser(User user)
+    public async Task UpdateUserAsync(User user)
     {
         _dbContext.Update(user);
-        Save();
+        await SaveAsync();
     }
 
-    public void DeleteUser(User user)
+    public async Task DeleteUserAsync(User user)
     {
         _dbContext.Remove(user);
-        Save();
+        await SaveAsync();
     }
 }
