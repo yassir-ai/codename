@@ -1,6 +1,6 @@
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
+using UserService.Exceptions;
 using UserService.Interfaces;
 using UserService.Repository;
 
@@ -21,7 +21,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionHandlerMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

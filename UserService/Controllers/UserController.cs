@@ -21,100 +21,53 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateUser([FromBody] UserDtoCreate userCreateDto)
+    public async Task<IActionResult> CreateUser([FromBody] UserDtoCreate userCreateDto)
     {
-        if(!ModelState.IsValid) return BadRequest();
-
         var user = _mapper.Map<User>(userCreateDto);
 
-        if(! _userRepository.CreateUser(user)) return StatusCode(500, "An unexpected error occurred");
+        _userRepository.CreateUser(user);
 
         return Created();
     }
 
     [HttpGet]
-    public IActionResult GetAllUsers()
+    public async Task<IActionResult> GetAllUsers()
     {
-        try
-        {
-            var users = _userRepository.GetAllUsers();
+        var users = _userRepository.GetAllUsers();
 
-            if (!users.Any()) return NotFound();
+        var usersDtos = _mapper.Map<IEnumerable<UserDtoRead>>(users);
 
-            var usersDtos = _mapper.Map<IEnumerable<UserDtoRead>>(users);
-
-            return Ok(usersDtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
-        }
-        
+        return Ok(usersDtos);   
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetUser([FromRoute]string id)
+    public async Task<IActionResult> GetUser([FromRoute]string id)
     {
-        try
-        {
-            var user = _userRepository.GetUser(id);
+        var user = _userRepository.GetUser(id);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var userDto = _mapper.Map<UserDtoRead>(user);
-            return Ok(userDto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
-        }
+        var userDto = _mapper.Map<UserDtoRead>(user);
+        return Ok(userDto);
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateUser([FromRoute] string id, [FromBody]UserDtoUpdate userUpdateDto)
+    public async Task<IActionResult> UpdateUser([FromRoute] string id, [FromBody]UserDtoUpdate userUpdateDto)
     {
-        if(!ModelState.IsValid) return BadRequest();
+        var user = _userRepository.GetUser(id);
 
-        try
-        {
-            var user = _userRepository.GetUser(id);
+        userUpdateDto.ToUserModel(user);
 
-            if(user == null) return NotFound();
+        _userRepository.UpdateUser(user);
 
-            userUpdateDto.ToUserModel(user);
-
-            _userRepository.UpdateUser(user);
-
-            return NoContent();
-        }
-        catch (System.Exception ex)
-        {
-            return StatusCode(500, $"An unexpected error occurred : {ex.Message}");
-        }
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteUser([FromRoute]string id)
+    public async Task<IActionResult> DeleteUser([FromRoute]string id)
     {
-        try
-        {
-            var user = _userRepository.GetUser(id);
+        var user = _userRepository.GetUser(id);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+        _userRepository.DeleteUser(user);
 
-            if (!_userRepository.DeleteUser(user)) return StatusCode(500, "An unexpected error occurred");
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
-        }
+        return NoContent();
     }
 }
