@@ -31,7 +31,7 @@ public class UserController : ControllerBase
 
         _logger.LogInformation("User created successfully with UserId {UserId} at {Time}", user.Id, user.CreatedAt);
 
-        return Created();
+        return CreatedAtAction(nameof(GetUserAsync), new {id = user.Id}, user);
     }
 
     [HttpGet]
