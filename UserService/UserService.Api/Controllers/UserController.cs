@@ -27,7 +27,7 @@ public class UserController : ControllerBase
 
         await _userRepository.CreateUserAsync(user);
 
-        return Created();
+        return CreatedAtAction(nameof(GetUserAsync), new {id = user.Id}, user);
     }
 
     [HttpGet]
