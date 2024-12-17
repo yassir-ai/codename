@@ -1,8 +1,10 @@
 using System.Data.Common;
 using AutoMapper;
+using Castle.Core.Logging;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using UserService.Controllers;
 using UserService.Dtos;
 using UserService.Extensions;
@@ -15,11 +17,14 @@ public class UserControllerTests
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<UserController> _logger; 
 
     public UserControllerTests()
     {
         _userRepository = A.Fake<IUserRepository>();
         _mapper = A.Fake<IMapper>();
+        _logger = A.Fake<ILogger<UserController>>();;
+
     }
 
     [Fact]
@@ -30,9 +35,10 @@ public class UserControllerTests
         var usersDto = A.Fake<IEnumerable<UserDtoRead>>();
 
         //Configure Mocks
+        A.CallTo(() => _userRepository.GetAllUsersAsync()).Returns(users);
         A.CallTo(() => _mapper.Map<IEnumerable<UserDtoRead>>(users)).Returns(usersDto);
 
-        var controller = new UserController(_userRepository, _mapper);
+        var controller = new UserController(_userRepository, _mapper, _logger);
 
         //Act
         var result = await controller.GetAllUsersAsync();
@@ -40,6 +46,9 @@ public class UserControllerTests
         //Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<OkObjectResult>().Which.StatusCode.Should().Be(200);
+
+        //Check Mocks
+        A.CallTo(() => _userRepository.GetAllUsersAsync()).MustHaveHappenedOnceExactly();
     }
 
     [Fact]
@@ -53,7 +62,7 @@ public class UserControllerTests
         A.CallTo(() => _mapper.Map<User>(userDto)).Returns(user);
         A.CallTo(() => _userRepository.CreateUserAsync(user)).Returns(Task.CompletedTask);
 
-        var controller = new UserController(_userRepository, _mapper);
+        var controller = new UserController(_userRepository, _mapper, _logger);
 
         //Act
         var result = await controller.CreateUserAsync(userDto);
@@ -78,7 +87,7 @@ public class UserControllerTests
         A.CallTo(() => _mapper.Map<UserDtoRead>(user)).Returns(userDto);
         A.CallTo(() => _userRepository.GetUserAsync(id)).Returns(user);
 
-        var controller = new UserController(_userRepository, _mapper);
+        var controller = new UserController(_userRepository, _mapper, _logger);
 
         //Act
         var result = await controller.GetUserAsync(id);
@@ -102,10 +111,9 @@ public class UserControllerTests
 
         //Configure Mocks
         A.CallTo(() => _userRepository.GetUserAsync(id)).Returns(user);
-        //A.CallTo(() => userDto.ToUserModel(user)).DoesNothing();
         A.CallTo(() => _userRepository.UpdateUserAsync(user)).Returns(Task.CompletedTask);
 
-        var controller = new UserController(_userRepository, _mapper);
+        var controller = new UserController(_userRepository, _mapper, _logger);
 
         //Act
         var result = await controller.UpdateUserAsync(user.Id, userDto);
@@ -130,7 +138,7 @@ public class UserControllerTests
         A.CallTo(() => _userRepository.GetUserAsync(id)).Returns(user);
         A.CallTo(() => _userRepository.DeleteUserAsync(user)).Returns(Task.CompletedTask);
 
-        var controller = new UserController(_userRepository, _mapper);
+        var controller = new UserController(_userRepository, _mapper, _logger);
 
         //Act
         var result = await controller.DeleteUser(id);
