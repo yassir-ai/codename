@@ -13,11 +13,13 @@ public class UserController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<UserController> _logger; 
 
-    public UserController(IUserRepository userRepository, IMapper mapper)
+    public UserController(IUserRepository userRepository, IMapper mapper, ILogger<UserController> logger)
     {
         _userRepository = userRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     [HttpPost]
@@ -26,6 +28,8 @@ public class UserController : ControllerBase
         var user = _mapper.Map<User>(userCreateDto);
 
         await _userRepository.CreateUserAsync(user);
+
+        _logger.LogInformation("User created successfully with UserId {UserId} at {Time}", user.Id, user.CreatedAt);
 
         return Created();
     }
@@ -37,6 +41,8 @@ public class UserController : ControllerBase
 
         var usersDtos = _mapper.Map<IEnumerable<UserDtoRead>>(users);
 
+        _logger.LogInformation("Fetched {UserCount} users at {Time}", usersDtos.Count(), DateTime.Now);
+
         return Ok(usersDtos);   
     }
 
@@ -46,6 +52,9 @@ public class UserController : ControllerBase
         var user = await _userRepository.GetUserAsync(id);
 
         var userDto = _mapper.Map<UserDtoRead>(user);
+
+        _logger.LogInformation("Fetched user with ID {UserId} at {Time}", id, DateTime.Now);
+
         return Ok(userDto);
     }
 
@@ -58,6 +67,8 @@ public class UserController : ControllerBase
 
         await _userRepository.UpdateUserAsync(user);
 
+        _logger.LogInformation("User with ID {UserId} updated successfully at {Time}", id, DateTime.Now);
+
         return NoContent();
     }
 
@@ -67,6 +78,8 @@ public class UserController : ControllerBase
         var user = await _userRepository.GetUserAsync(id);
 
         await _userRepository.DeleteUserAsync(user);
+
+        _logger.LogInformation("User with ID {UserId} deleted successfully at {Time}", id, DateTime.Now);
 
         return NoContent();
     }

@@ -1,4 +1,5 @@
 using System.Net;
+using Serilog;
 
 namespace UserService.Exceptions {
     public class ExceptionHandlerMiddleware
@@ -26,15 +27,17 @@ namespace UserService.Exceptions {
         {
             var statusCode = HttpStatusCode.InternalServerError;
 
-            // TODO: add logs
             switch (exception)
             {
                 case EntityNotFoundException:
+                    Log.Error(exception, "Entity not found: {Message}", exception.Message);
                     statusCode = HttpStatusCode.NotFound;
                     break;
                 case DatabaseSavingException:
+                    Log.Error(exception, "Database error: {Message}", exception.Message);
                     break;
                 default:
+                    Log.Error(exception, "An unexpected error occurred: {Message}", exception.Message);
                     statusCode = HttpStatusCode.InternalServerError;
                     break;
             }

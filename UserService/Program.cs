@@ -1,10 +1,20 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using UserService.Data;
 using UserService.Exceptions;
 using UserService.Interfaces;
 using UserService.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 
